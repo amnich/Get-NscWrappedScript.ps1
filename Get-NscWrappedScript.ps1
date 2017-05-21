@@ -63,11 +63,14 @@ Function Get-NscWrappedScript {
         $patternFileName = "=(([^\\]*)\.(\w+))"
         $patternWS = "\[Wrapped Scripts\]"
         $NSCini = "nsc.ini"
+		$VerboseSwitch = $PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent
         $ScriptBlock = {
             try {
                 if ($using:NscFolder) {
-                    $VerbosePreference = "continue"
-                    Write-Verbose "Running remote on $env:computername"
+				    if ($using:VerboseSwitch){
+						$VerbosePreference = "continue"
+					}
+					Write-Verbose "Running remote on $env:computername"
                     $NscFolder = $using:NscFolder   
                     $NSCini = $using:NSCini                    
                     $patternWS = $using:patternWS
@@ -112,7 +115,7 @@ Function Get-NscWrappedScript {
                     #get all scripts in folder
                     $scriptFiles = Get-ChildItem "$($folder.fullname)\scripts\*.*"
                     Write-Debug "$($scriptFiles | out-string)"
-                    foreach ($wrappedCommand in $wrappedCommands) {
+                    foreach ($wrappedCommand in ($wrappedCommands | Where-Object {$_.length -gt 0})) {
                         #create output object
                         $wrappedObject = New-Object pscustomobject -Property @{
                             Command = $WrappedCommand
