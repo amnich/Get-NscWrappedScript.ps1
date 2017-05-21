@@ -46,7 +46,14 @@ Command                                                    Script               
 -------                                                    ------                                                        -------
 ;check_test_vbs=check_test.vbs /arg1:1 /arg2:1 /variable:1 C:\Program Files\NSClient++-0.3.9-x64-\scripts\check_test.vbs   False
 ;check_test_ps1=check_test.ps1 arg1 arg2                                                                                   False
-;check_test_bat=check_test.bat arg1 arg2                                                                                   False
+;check_test_bat=check_test.bat arg1 arg2
+
+.LINK
+https://github.com/amnich/Get-NscWrappedScript.ps1
+
+.NOTES
+    Author: Adam Mnich
+                                                                                      
 #>
 Function Get-NscWrappedScript {
     param(
