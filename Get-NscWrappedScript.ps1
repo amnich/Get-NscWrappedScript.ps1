@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-Get entries from NSClient++ nsc.ini file in [Wrapped Scripts].
+Get entries from NSClient++ nsc.ini file in Wrapped Scripts.
 
 .DESCRIPTION
-Get entries from NSClient++ nsc.ini file in [Wrapped Scripts].
+Get entries from NSClient++ nsc.ini or nsclient.ini file in Wrapped Scripts.
 Return command line, script path if present in script's directory and status.
 
 .PARAMETER ScriptName
@@ -68,8 +68,8 @@ Function Get-NscWrappedScript {
     )
     BEGIN {
         $patternFileName = "=(([^\\]*)\.(\w+))"
-        $patternWS = "\[Wrapped Scripts\]"
-        $NSCini = "nsc.ini"
+        $patternWS = "[\[|[\/settings\/external scripts\/][w|W]rapped [s|S]cripts\]"
+        $NSCini = "nsc.ini", "nsclient.ini"
 		$VerboseSwitch = $PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent
         $ScriptBlock = {
             try {
@@ -94,11 +94,13 @@ Function Get-NscWrappedScript {
             Write-Debug "$($folders | out-string)"
             foreach ($folder in $Folders) {
                 try {
-                    $NscIniPath = "$($folder.FullName)\$NSCini"
+                    $NscIniPath = "$($folder.FullName)\$($NSCini[0])"
                     if (!(Test-Path $NscIniPath)) {
-                        Write-Error "$NscIniPath missing"
-                    }
-                    
+                        $NscIniPath = "$($folder.FullName)\$($NSCini[1])"
+                        if (!(Test-Path $NscIniPath)) {
+                            Write-Error "$NscIniPath missing"
+                        }
+                    }                    
                     $NscIniContent = Get-Content $NscIniPath
                     Write-Verbose "  NSC ini content: $($NscIniContent.count) lines"
                     #get only Wrapper Script entries from ini
@@ -128,6 +130,7 @@ Function Get-NscWrappedScript {
                             Command = $WrappedCommand
                             Script  = $null
                             Enabled = $true
+                            Ini = $NscIniPath
                         }
                         #find filename in command
                         if ($WrappedCommand -match $patternFileName) {
@@ -147,11 +150,11 @@ Function Get-NscWrappedScript {
                         }
                         #filter if $scriptName was provided
                         if ($ScriptName -and $wrappedObject.script -match [regex]::Escape($ScriptName)) {
-                            $wrappedObject | Select-Object Command, Script, Enabled
+                            $wrappedObject | Select-Object Command, Script, Enabled, Ini
                         }
                         #display if no $scriptName 
                         elseif (!($ScriptName)) {
-                            $wrappedObject | Select-Object Command, Script, Enabled
+                            $wrappedObject | Select-Object Command, Script, Enabled, Ini
                         }                     
                     }                    
                 }
