@@ -1,5 +1,5 @@
 # Get-NscWrappedScript
-Get entries from NSClient++ nsc.ini file in Wrapped Scripts section.  
+Get entries from NSClient++ nsc.ini or nsclient.ini file in Wrapped Scripts section.  
 
 Returns command line, script path (if present in script's directory) and status.
 
